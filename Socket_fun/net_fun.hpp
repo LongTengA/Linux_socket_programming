@@ -63,8 +63,7 @@ namespace net_addr {
 //一个ip4地址类，
 class ip4 {
     struct sockaddr_in* m_addrinfo;
-    static int addrlen;
-    char buffer[16];
+    const int addrlen { sizeof(sockaddr_in) };
 
 public:
     ip4(const char* ip = "0.0.0.0", int port = 0);
@@ -72,13 +71,12 @@ public:
     ip4(struct sockaddr_in* ip);
     sockaddr* toSockaddr();
     sockaddr_in* toSock_in();
-    int& getAddrlen();
+    const int& getAddrlen();
     char* getIp();
     int getPort();
     void show();
     socklen_t* getAddrLenPtr();
 };
-int ip4::addrlen = sizeof(sockaddr_in);
 inline ip4::ip4(struct sockaddr_in* ip)
 {
     m_addrinfo = new sockaddr_in;
@@ -112,7 +110,7 @@ inline sockaddr_in* ip4::toSock_in()
 {
     return m_addrinfo;
 };
-inline int& ip4::getAddrlen()
+inline const int& ip4::getAddrlen()
 {
     return addrlen;
 };
@@ -135,3 +133,41 @@ inline socklen_t* ip4::getAddrLenPtr()
     return (socklen_t*)&addrlen;
 }
 }
+
+class TCP_server {
+private:
+    net_addr::ip4 m_ser_Addr;
+    int sockfd;
+
+public:
+    TCP_server(char* ip, int port);
+    TCP_server(net_addr::ip4& ip);
+    void linten();
+    void bind(net_addr::ip4& ip);
+    fileDescriber accept(net_addr::ip4& addr);
+};
+
+inline TCP_server::TCP_server(char* ip, int port)
+    : m_ser_Addr(ip, port)
+{
+    sockfd = net_fun::socket();
+    net_fun::bind(sockfd, m_ser_Addr.toSockaddr());
+};
+inline TCP_server::TCP_server(net_addr::ip4& ip)
+    : m_ser_Addr(ip)
+{
+    sockfd = net_fun::socket();
+    net_fun::bind(sockfd, m_ser_Addr.toSockaddr());
+};
+inline void TCP_server::linten()
+{
+    net_fun::listen(sockfd);
+};
+inline void TCP_server::bind(net_addr::ip4& ip)
+{
+    net_fun::bind(sockfd, ip.toSockaddr());
+};
+inline fileDescriber TCP_server::accept(net_addr::ip4& addr)
+{
+    return ::accept(sockfd, addr.toSockaddr(), addr.getAddrLenPtr());
+};
