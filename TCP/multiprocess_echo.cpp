@@ -35,6 +35,7 @@ void Server()
     sigaction(SIGCHLD, &act, 0);
 
 #ifdef DEBUGE
+    //信号的处理会打断阻塞的IO
     act.sa_handler = printf_count;
     sigaction(SIGINT, &act, 0);
 #endif
@@ -43,6 +44,7 @@ void Server()
 
     TCP_server p("0.0.0.0", 9000);
     p.linten();
+
     while (1) {
         count++;
         int connfd = p.accept();
