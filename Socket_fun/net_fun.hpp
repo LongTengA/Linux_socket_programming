@@ -1,12 +1,7 @@
 #include <arpa/inet.h>
-#include <asm-generic/socket.h>
-#include <bits/types/FILE.h>
 #include <cstring>
-#include <netinet/in.h>
 #include <stdio.h>
-#include <strings.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <unistd.h>
 //一些常用网络编程函数以及数据结构的封装
 using fileDescriber = int;
@@ -76,7 +71,12 @@ public:
     int getPort();
     void show();
     socklen_t* getAddrLenPtr();
+    ~ip4();
 };
+inline ip4::~ip4()
+{
+    delete m_addrinfo;
+}
 inline ip4::ip4(struct sockaddr_in* ip)
 {
     m_addrinfo = new sockaddr_in;
@@ -135,19 +135,21 @@ inline socklen_t* ip4::getAddrLenPtr()
 }
 
 class TCP_server {
-private:
+public:
     net_addr::ip4 m_ser_Addr;
+    net_addr::ip4 m_conn_Addr;
     int sockfd;
 
 public:
-    TCP_server(char* ip, int port);
+    TCP_server(const char* ip, int port);
     TCP_server(net_addr::ip4& ip);
     void linten();
     void bind(net_addr::ip4& ip);
     fileDescriber accept(net_addr::ip4& addr);
+    fileDescriber accept();
 };
 
-inline TCP_server::TCP_server(char* ip, int port)
+inline TCP_server::TCP_server(const char* ip, int port)
     : m_ser_Addr(ip, port)
 {
     sockfd = net_fun::socket();
@@ -170,4 +172,8 @@ inline void TCP_server::bind(net_addr::ip4& ip)
 inline fileDescriber TCP_server::accept(net_addr::ip4& addr)
 {
     return ::accept(sockfd, addr.toSockaddr(), addr.getAddrLenPtr());
+};
+inline fileDescriber TCP_server::accept()
+{
+    return ::accept(sockfd, m_conn_Addr.toSockaddr(), m_conn_Addr.getAddrLenPtr());
 };
