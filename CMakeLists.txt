@@ -5,3 +5,5 @@ project(Linux_socket)
 add_executable(HelloWorld HelloWorld.cpp)
 
 add_executable(TCP_echo TCP/echo_server.cpp)
+
+add_executable(multiprocess_echo TCP/multiprocess_echo.cpp)
