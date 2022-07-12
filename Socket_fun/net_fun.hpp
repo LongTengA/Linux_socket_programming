@@ -1,9 +1,14 @@
+
+#ifndef __NET_FUN__
+#define __NET_FUN__
+
 #include <arpa/inet.h>
 #include <cstring>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
 //一些常用网络编程函数以及数据结构的封装
+
 using fileDescriber = int;
 namespace net_addr {
 class ip4;
@@ -100,7 +105,7 @@ inline ip4::ip4(const ip4& ip)
     m_addrinfo = new sockaddr_in;
     if (!m_addrinfo)
         net_fun::err_hanlde("cpoy ip");
-    memcpy(m_addrinfo, &ip, addrlen);
+    *m_addrinfo = *ip.m_addrinfo;
 }
 inline sockaddr* ip4::toSockaddr()
 {
@@ -125,7 +130,7 @@ inline int ip4::getPort()
 
 inline void ip4::show()
 {
-    printf("IP:%s Port:%d\n", this->getIp(), this->getPort());
+    printf("IP:\033[31m%s\033[39m Port:\033[31m%d\033[39m\n", this->getIp(), this->getPort());
 }
 
 inline socklen_t* ip4::getAddrLenPtr()
@@ -177,3 +182,4 @@ inline fileDescriber TCP_server::accept()
 {
     return ::accept(sockfd, m_conn_Addr.toSockaddr(), m_conn_Addr.getAddrLenPtr());
 };
+#endif
